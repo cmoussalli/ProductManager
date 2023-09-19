@@ -1,0 +1,145 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    Layout = "BaseLayout.cshtml";
+}
+@{
+    List<IPublishedContent> releasesNodes = Model.Children.Where(o => o.Name.ToLower() == "releases").ToList();
+    IPublishedContent releaseNode;
+    List<IPublishedContent> releases = new();
+    IPublishedContent lastRelease;
+
+    //Bugs:
+    List<IPublishedContent> activeBugsNodes = Model.Children.Where(o => o.Name.ToLower() == "bugs").ToList();
+    IPublishedContent bugNode;
+    List<IPublishedContent> bugs = new();
+
+
+    if (releasesNodes.Count() == 1)
+    {
+        releaseNode = releasesNodes[0];
+        releases = releaseNode.Children.Take(10).ToList();
+    }
+
+}
+
+
+
+<div class="row">
+    <div class="col-8">
+        النظام
+        <h3>@Model.Value("title")</h3>
+    </div>
+    <div class="col-2">
+    </div>
+    <div class="col-2">
+        <br />
+        <a href="@Model.Value("serviceURL")" target="_blank" class="btn btn-sm btn-round btn-success">
+            رابط الخدمة
+        </a>
+    </div>
+</div>
+<hr />
+
+
+
+
+<h4>معلومات عامة</h4>
+@Model.Value("description")
+<br />
+<br />
+<br />
+
+
+
+
+
+
+@{
+
+    if (releases.Count() > 0)
+    {
+        <ul>
+            @foreach (var item in releases)
+            {
+                string releaseDate = DateTime.Parse(item.Value("releaseDate").ToString()).ToShortDateString();
+                List<IPublishedElement> solvedBugs = new(); try { solvedBugs = item.Value<IEnumerable<IPublishedElement>>("solvedBugs").ToList(); } catch (Exception ex) { }
+                List<IPublishedElement> affectedServices = new(); try { affectedServices = item.Value<IEnumerable<IPublishedElement>>("affectedServices").ToList(); } catch (Exception ex) { }
+                List<IPublishedElement> newServices = new(); try { newServices = item.Value<IEnumerable<IPublishedElement>>("newServices").ToList(); } catch (Exception ex) { }
+
+
+                <li>
+                    <a href="@item.Url()">
+                        <h2>
+                            الإصدار @item.Value("number").ToString() :
+                        </h2>
+                    </a>
+                    <p>
+                        @releaseDate
+                    </p>
+
+                    <br>
+
+                    <h4>التعديلات</h4>
+                    @item.Value("changes")
+                    <br />
+                    <br />
+
+
+                    @if (solvedBugs.Count() > 0)
+                    {
+                        <h4>المشاكل التي تم تلافيها</h4>
+                        <ul>
+                            @foreach (var sb in solvedBugs)
+                            {
+                                <li>
+                                    @sb.Value("title").ToString()
+                                </li>
+                            }
+                        </ul>
+                        <br />
+                        <br />
+                    }
+
+
+                    @if (affectedServices.Count() > 0)
+                    {
+                        <h4>الخدمات المتأثرة</h4>
+                        <ul>
+                            @foreach (var affectedService in affectedServices)
+                            {
+                                <li>
+                                    @affectedService.Value("title").ToString()
+                                </li>
+                            }
+                        </ul>
+                        <br />
+                        <br />
+                    }
+
+
+                    @if (newServices.Count() > 0)
+                    {
+                        <h4>الخدمات الجديدة</h4>
+                        <ul>
+                            @foreach (var newService in newServices)
+                            {
+                                <li>
+                                    @newService.Value("title").ToString()
+                                </li>
+                            }
+                        </ul>
+                        <br />
+                        <br />
+                    }
+
+
+                    <br>
+                    <br>
+                </li>
+            }
+        </ul>
+
+    }
+
+}

@@ -1,0 +1,120 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    Layout = "BaseLayout.cshtml";
+}
+@{
+    IPublishedContent productNode = Model.Parent.Parent; // Get the parent node
+    var productTitle = productNode.Value<string>("title"); // Replace "propertyName" with the actual property alias
+    string releaseDate = DateTime.Parse(Model.Value("releaseDate").ToString()).ToShortDateString();
+    List<IPublishedElement> solvedBugs = new(); try { solvedBugs = Model.Value<IEnumerable<IPublishedElement>>("solvedBugs").ToList(); } catch (Exception ex) { }
+    List<IPublishedElement> affectedServices = new(); try { affectedServices = Model.Value<IEnumerable<IPublishedElement>>("affectedServices").ToList(); } catch (Exception ex) { }
+    List<IPublishedElement> newServices = new(); try { newServices = Model.Value<IEnumerable<IPublishedElement>>("newServices").ToList(); } catch (Exception ex) { }
+    var screenshots = Model.Value<IEnumerable<IPublishedContent>>("screenshots");
+}
+
+<div class="row">
+    <div class="col-8">
+        النظام
+        <a href="@productNode.Url()">
+            <h4>@productTitle</h4>
+        </a>
+    </div>
+    <div class="col-2">
+        رقم الإصدار
+        <h5>@Model.Value("number")</h5>
+    </div>
+    <div class="col-2">
+        تاريخ الإصدار
+        <h5>@releaseDate</h5>
+    </div>
+
+</div>
+
+
+<hr />
+<br />
+
+
+<h3>التعديلات</h3>
+@Model.Value("changes")
+<br />
+<br />
+
+
+<h3>المشاكل التي تم تلافيها</h3>
+@if (solvedBugs.Count() == 0)
+{
+    <p>لا يوجد</p>
+}
+else
+{
+    @foreach (var item in solvedBugs)
+    {
+        @item.Value("title").ToString()
+
+    }
+<br />
+<br />
+}
+
+
+<h3>الخدمات المتأثرة</h3>
+
+@if (affectedServices.Count() == 0)
+{
+    <p>لا يوجد</p>
+}
+else
+{
+    @foreach (var item in affectedServices)
+    {
+        @item.Value("title").ToString()
+
+    }
+<br />
+<br />
+}
+
+
+<h3>الخدمات الجديدة</h3>
+@if (newServices.Count() == 0)
+{
+    <p>لا يوجد</p>
+}
+else
+{
+    @foreach (var item in newServices)
+    {
+        @item.Value("title").ToString()
+
+    }
+<br />
+<br />
+}
+
+
+<h3>الملفات المرفقة</h3>
+@if (screenshots.Count() == 0)
+{
+    <p>لا يوجد</p>
+}
+else
+{
+    <div class="row">
+
+    @foreach (var photo in screenshots)
+    {
+        <div class="col-lg-6 col-sm-12 portfolio-item">
+            <div class="card h-100">
+                <a href="@photo.Url()" data-lightbox="@photo.Id">
+                    <img class="card-img-top" src="@photo.Url()" alt="placeholder" />
+                    </a>
+
+            </div>
+        <br />
+        </div>
+    }
+    </div>
+
+}
